@@ -1,0 +1,14 @@
+#+TITLE: The Long Count, a Mayan numeric system
+#+AUTHOR: Hugo O. Rivera Calzadillas
+
+* Testing
+
+#+BEGIN_SRC
+make test
+#+END_SRC
+
+* Development
+
+#+BEGIN_SRC
+make format
+#+END_SRC

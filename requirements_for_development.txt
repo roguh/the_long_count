@@ -1,0 +1,6 @@
+autopep8
+pydocstyle
+nose2
+coverage
+mock
+isort
