@@ -1,4 +1,4 @@
-"""Behold the group M,
+"""Behold, the group M.
 
 A Mesoamerican notation for writing integers in base 20 with an 18 in the
 third position, where 20^3 would go.
@@ -39,11 +39,14 @@ numbers = [
 names_to_days = OrderedDict(zip(ticks, names))
 
 
-zero = np.zeros(m, dtype='i')
+zero = np.zeros(m, dtype='int64')
 
 unity = np.array([1] + [0] * (m - 1))
 
-example = np.array([1] * m)
+examples = np.diag([1] * m)
+
+for a in [zero, unity, examples]:
+    a.flags.writeable = False
 
 
 # M is countably infinite.
@@ -63,6 +66,30 @@ def to_integer(n):
     360
     """
     return sum(n * ticks)
+
+
+def from_integer(n):
+    """Convert n to a number.
+
+    >>> to_integer(from_integer(1)) == 1
+    True
+
+    >>> to_integer(from_integer(1441)) == 1441
+    True
+
+    >>> to_integer(from_integer(7431232)) == 7431232
+    True
+    """
+    x = np.array(zero)
+    d = 0
+    for i in range(len(x)):
+        if i == len(x) - 1:
+            x[i] = n % ticks[-1]
+        else:
+            d = n % ticks[i + 1]
+            x[i] = d // ticks[i]
+            n -= d
+    return x
 
 
 def shift(a):
@@ -90,18 +117,37 @@ def increment(a):
     23040000001
     """
     a = a + unity
-    ticks_ = ticks[1:] + [a[-1] + 1]
+    ticks_ = [20] + ticks[1:]
     while (a // ticks_ > zero).any():
         a = shift(a // ticks_) + (a % ticks_)
     return a
 
 
 def add(a, b):
-    """Adds to numbers."""
+    """Add to numbers.
+
+    >>> to_integer(add(unity, unity))
+    2
+
+    >>> to_integer(add(from_integer(41539832), from_integer(154124))) == 41539832 + 154124
+    True
+    """
+    carry = 0
+    c = np.array(zero)
+    ticks_ = ticks[1:] + [ticks[-1] + 1]
+    for i, (ai, bi) in enumerate(zip(a, b)):
+        s = ai + bi + carry
+        carry = s // ticks_[i]
+        c[i] = s % ticks_[i]
+    return c
 
 
 def repeat(f, n, x):
-    """Apply the function f to x, n times."""
+    """Apply the function f to x, n times.
+
+    >>> to_integer(repeat(increment, 21, unity))
+    22
+    """
     while n:
         x = f(x)
         n -= 1

@@ -12,6 +12,7 @@ nose2 = "*"
 coverage = "*"
 mock = "*"
 isort = "*"
+numpy = "*"
 
 [requires]
 python_version = "3.8"
