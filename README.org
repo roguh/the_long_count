@@ -1,6 +1,81 @@
 #+TITLE: The Long Count, a Mayan numeric system
 #+AUTHOR: Hugo O. Rivera Calzadillas
 
+A Mesoamerican notation for writing integers in base 20 with an 18 in the
+third position, where 20^3 would go.
+
+- 1 day is called K'in.
+- 20 days are called Winal.
+- 360 (20 * 18) days are called Tun. This is where the number system differs
+  from base twenty. This is likely because 360 is approximately one year.
+- 7200 (20 ** 2 * 18) days are called K'atun and represent about 20 years.
+- This continues until 1 Alautun, which is 20 ** 7 * 18 and represents about
+  63,081,429 years.
+
+* Examples
+
+Here is how many years each number represents:
+
+#+BEGIN_SRC
+>>> import M
+>>> for days, name in M.days_to_names.items():
+...     print(f"A {name} is {days} days, or approximately {days / 365:,.2f} years.")
+A K'in is 1 days, or approximately 0.00 years.
+A Winal is 20 days, or approximately 0.05 years.
+A Tun is 360 days, or approximately 0.99 years.
+A K'atun is 7200 days, or approximately 19.73 years.
+A B'ak'tun is 144000 days, or approximately 394.52 years.
+A Piktun is 2880000 days, or approximately 7,890.41 years.
+A Kalabtun is 57600000 days, or approximately 157,808.22 years.
+A K'inchiltun is 1152000000 days, or approximately 3,156,164.38 years.
+A Alautun is 23040000000 days, or approximately 63,123,287.67 years.
+
+#+END_SRC
+
+
+Here is a factorization of each number to powers of 20 and 18:
+
+#+BEGIN_SRC
+>>> M.days
+[1, 20, 360, 7200, 144000, 2880000, 57600000, 1152000000, 23040000000]
+>>> for days in M.days[2:]: 
+...     print(f"{days} days are called {M.days_to_names[days]} = 18 * 20 ** {1 + M.log20(days / 18)} days")
+360 days are called Tun = 18 * 20 ** 2.0 days
+7200 days are called K'atun = 18 * 20 ** 3.0 days
+144000 days are called B'ak'tun = 18 * 20 ** 4.0 days
+2880000 days are called Piktun = 18 * 20 ** 5.0 days
+57600000 days are called Kalabtun = 18 * 20 ** 6.000000000000001 days
+1152000000 days are called K'inchiltun = 18 * 20 ** 7.0 days
+23040000000 days are called Alautun = 18 * 20 ** 8.0 days
+
+#+END_SRC
+
+Numbers are represented as numpy arrays with 9 elements.
+The 0th element is the first digit, the 1st is the second digit, and so on.
+
+For example, 44 = 4 Tun + 2 Winal.
+
+#+BEGIN_SRC
+>>> M.from_integer(44)
+array([4, 2, 0, 0, 0, 0, 0, 0, 0])
+
+#+END_SRC
+
+You can add numbers with M.add. There is also:
+
+- M.increment to add 1 to a number.
+- M.shift to multiply a number by 20 or 18.
+- M.repeat to apply a function N times.
+
+#+BEGIN_SRC
+>>> M.to_integer(M.add(M.from_integer(122), M.from_integer(34)))
+156
+
+>>> M.to_integer(M.repeat(M.shift, 5, M.from_integer(222)))
+639360000
+
+#+END_SRC
+
 * Testing
 
 #+BEGIN_SRC
@@ -12,3 +87,8 @@ make test
 #+BEGIN_SRC
 make format
 #+END_SRC
+
+* Sources
+
+- https://en.wikipedia.org/wiki/Mesoamerican_Long_Count_calendar
+- https://es.wikipedia.org/wiki/Cuenta_larga
