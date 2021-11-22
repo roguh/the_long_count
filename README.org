@@ -1,4 +1,4 @@
-#+TITLE: The Long Count, a Mayan numeric system
+#+TITLE: The Long Count, a Mayan numeric system for dates.
 #+AUTHOR: Hugo O. Rivera Calzadillas
 
 A Mesoamerican notation for writing integers in base 20 with an 18 in the
