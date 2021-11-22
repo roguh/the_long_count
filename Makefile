@@ -9,9 +9,8 @@ pipenv_install:
 	echo OR USE pipenv run PROGRAM
 
 test:
-	python3 -m doctest -v $(PYFILES)
-	nose2 --output-buffer --pretty-assert --log-capture --with-coverage --coverage .
-
+	python3 -m doctest -v $(PYFILES) README.org
+	
 format:
 	autopep8 --in-place --aggressive $(ALLPYFILES)
 	isort $(ALLPYFILES)
