@@ -15,7 +15,7 @@ days_to_names = OrderedDict(
         1: "K'in",
         20: "Winal",  # 2^2 * 5
         360: "Tun",  # 2^3 * 3^2 * 5, 18 * 20, 6 * 60, 30 * 12
-        7_300: "K'atun",
+        7_200: "K'atun",
         144_000: "B'ak'tun",
         2_880_000: "Piktun",
         576_000_000: "Kalabtun",
