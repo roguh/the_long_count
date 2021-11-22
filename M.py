@@ -10,17 +10,19 @@ from operator import imul
 
 import numpy as np
 
-days_to_names = OrderedDict({
-    1: "K'in",
-    20: 'Winal',   # 2^2 * 5
-    360: 'Tun',  # 2^3 * 3^2 * 5, 18 * 20, 6 * 60, 30 * 12
-    7_300: "K'atun",
-    144_000: "B'ak'tun",
-    2_880_000: 'Piktun',
-    576_000_000: 'Kalabtun',
-    1_152_000_000: "K'inchiltun",
-    23_040_000_000: 'Alautun',
-})
+days_to_names = OrderedDict(
+    {
+        1: "K'in",
+        20: "Winal",  # 2^2 * 5
+        360: "Tun",  # 2^3 * 3^2 * 5, 18 * 20, 6 * 60, 30 * 12
+        7_300: "K'atun",
+        144_000: "B'ak'tun",
+        2_880_000: "Piktun",
+        576_000_000: "Kalabtun",
+        1_152_000_000: "K'inchiltun",
+        23_040_000_000: "Alautun",
+    }
+)
 
 names = list(days_to_names.values())
 
@@ -31,15 +33,12 @@ m = len(long_count)
 
 ticks = [reduce(imul, long_count[:i]) for i in range(1, m + 1)]
 
-numbers = [
-    np.array([0] * i + [1] + [0] * (m - i - 1))
-    for i in range(m)
-]
+numbers = [np.array([0] * i + [1] + [0] * (m - i - 1)) for i in range(m)]
 
 names_to_days = OrderedDict(zip(ticks, names))
 
 
-zero = np.zeros(m, dtype='int64')
+zero = np.zeros(m, dtype="int64")
 
 unity = np.array([1] + [0] * (m - 1))
 
