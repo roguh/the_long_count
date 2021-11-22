@@ -9,6 +9,7 @@ from functools import reduce
 from operator import imul
 
 import numpy as np
+import math
 
 days_to_names = OrderedDict(
     {
@@ -18,7 +19,7 @@ days_to_names = OrderedDict(
         7_200: "K'atun",
         144_000: "B'ak'tun",
         2_880_000: "Piktun",
-        576_000_000: "Kalabtun",
+        57_600_000: "Kalabtun",
         1_152_000_000: "K'inchiltun",
         23_040_000_000: "Alautun",
     }
@@ -31,12 +32,13 @@ long_count = [1, 20, 18] + [20] * 6
 # Because m is odd, -x == -to_integer(x) for all x in M.
 m = len(long_count)
 
-ticks = [reduce(imul, long_count[:i]) for i in range(1, m + 1)]
+# days = [reduce(imul, long_count[:i]) for i in range(1, m + 1)]
+days = sorted(list(days_to_names.keys()))
 
-numbers = [np.array([0] * i + [1] + [0] * (m - i - 1)) for i in range(m)]
+# A number is represented as a numpy array with 9 elements.
+powers_of_20ish = [np.array([0] * i + [1] + [0] * (m - i - 1)) for i in range(m)]
 
-names_to_days = OrderedDict(zip(ticks, names))
-
+names_to_days = OrderedDict(zip(days, names))
 
 zero = np.zeros(m, dtype="int64")
 
@@ -46,6 +48,10 @@ examples = np.diag([1] * m)
 
 for a in [zero, unity, examples]:
     a.flags.writeable = False
+
+
+def log20(value):
+    return math.log(value) / math.log(20)
 
 
 # M is countably infinite.
@@ -64,7 +70,7 @@ def to_integer(n):
     >>> to_integer(np.array([0, 0, 1, 0, 0, 0, 0, 0, 0]))
     360
     """
-    return sum(n * ticks)
+    return sum(n * days)
 
 
 def from_integer(n):
@@ -83,16 +89,16 @@ def from_integer(n):
     d = 0
     for i in range(len(x)):
         if i == len(x) - 1:
-            x[i] = n % ticks[-1]
+            x[i] = n % days[-1]
         else:
-            d = n % ticks[i + 1]
-            x[i] = d // ticks[i]
+            d = n % days[i + 1]
+            x[i] = d // days[i]
             n -= d
     return x
 
 
 def shift(a):
-    """Shift up, increasing the number's magnitude.
+    """Shift up, increasing the number's magnitude by powers of 20 or 18.
 
     >>> to_integer(shift(unity))
     20
@@ -116,28 +122,34 @@ def increment(a):
     23040000001
     """
     a = a + unity
-    ticks_ = [20] + ticks[1:]
-    while (a // ticks_ > zero).any():
-        a = shift(a // ticks_) + (a % ticks_)
+    days_ = [20] + days[1:]
+    while (a // days_ > zero).any():
+        a = shift(a // days_) + (a % days_)
     return a
 
 
 def add(a, b):
-    """Add to numbers.
+    """Add two long count numbers.
 
     >>> to_integer(add(unity, unity))
     2
+
+    >>> to_integer(add(powers_of_20ish[1], powers_of_20ish[2]))
+    380
+
+    >>> to_integer(add(from_integer(122), from_integer(34))) == 122 + 34
+    True
 
     >>> to_integer(add(from_integer(41539832), from_integer(154124))) == 41539832 + 154124
     True
     """
     carry = 0
     c = np.array(zero)
-    ticks_ = ticks[1:] + [ticks[-1] + 1]
+    days_ = days[1:] + [days[-1] + 1]
     for i, (ai, bi) in enumerate(zip(a, b)):
         s = ai + bi + carry
-        carry = s // ticks_[i]
-        c[i] = s % ticks_[i]
+        carry = s // days_[i]
+        c[i] = s % days_[i]
     return c
 
 
@@ -146,6 +158,12 @@ def repeat(f, n, x):
 
     >>> to_integer(repeat(increment, 21, unity))
     22
+
+    >>> to_integer(repeat(increment, 21, powers_of_20ish[3]))
+    7221
+
+    >>> to_integer(repeat(shift, 5, from_integer(222)))
+    639360000
     """
     while n:
         x = f(x)
